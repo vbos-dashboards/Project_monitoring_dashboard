@@ -106,6 +106,49 @@ body {
   overflow-x: auto;
 }
 
+.table-tools {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.table-tools input,
+.table-tools select,
+.pager button {
+  padding: 8px 10px;
+  border: 1px solid #c8d2e4;
+  border-radius: 8px;
+}
+
+#searchInput {
+  min-width: 260px;
+}
+
+#tableSummary {
+  color: #3f536f;
+  font-size: 13px;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.pager button {
+  background: #0b2d4f;
+  color: #fff;
+  cursor: pointer;
+}
+
+.pager button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;

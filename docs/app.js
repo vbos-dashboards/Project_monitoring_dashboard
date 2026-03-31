@@ -6,6 +6,13 @@ async function loadData() {
   return response.json();
 }
 
+const tableState = {
+  allRows: [],
+  filteredRows: [],
+  currentPage: 1,
+  pageSize: 25
+};
+
 function getValueByKeyContains(record, keyword) {
   const keys = Object.keys(record);
   const key = keys.find((k) => k.toLowerCase().includes(keyword));
@@ -110,10 +117,63 @@ function renderTable(projects) {
   table.appendChild(tbody);
 }
 
+function filterRows(rows, query) {
+  const q = query.trim().toLowerCase();
+  if (!q) return rows;
+  return rows.filter((row) =>
+    Object.values(row).some((value) => (value ?? "").toString().toLowerCase().includes(q))
+  );
+}
+
+function renderPagedTable() {
+  const total = tableState.filteredRows.length;
+  const totalPages = Math.max(1, Math.ceil(total / tableState.pageSize));
+  tableState.currentPage = Math.min(tableState.currentPage, totalPages);
+
+  const startIndex = (tableState.currentPage - 1) * tableState.pageSize;
+  const pageRows = tableState.filteredRows.slice(startIndex, startIndex + tableState.pageSize);
+  renderTable(pageRows);
+
+  const from = total === 0 ? 0 : startIndex + 1;
+  const to = Math.min(startIndex + tableState.pageSize, total);
+  document.getElementById("tableSummary").textContent = `${from}-${to} of ${total} rows`;
+  document.getElementById("pageIndicator").textContent = `Page ${tableState.currentPage} of ${totalPages}`;
+  document.getElementById("prevPage").disabled = tableState.currentPage <= 1;
+  document.getElementById("nextPage").disabled = tableState.currentPage >= totalPages;
+}
+
+function setupTableControls() {
+  const searchInput = document.getElementById("searchInput");
+  const pageSizeSelect = document.getElementById("pageSizeSelect");
+
+  searchInput.addEventListener("input", () => {
+    tableState.currentPage = 1;
+    tableState.filteredRows = filterRows(tableState.allRows, searchInput.value);
+    renderPagedTable();
+  });
+
+  pageSizeSelect.addEventListener("change", () => {
+    tableState.pageSize = Number(pageSizeSelect.value) || 25;
+    tableState.currentPage = 1;
+    renderPagedTable();
+  });
+
+  document.getElementById("prevPage").addEventListener("click", () => {
+    tableState.currentPage = Math.max(1, tableState.currentPage - 1);
+    renderPagedTable();
+  });
+
+  document.getElementById("nextPage").addEventListener("click", () => {
+    tableState.currentPage += 1;
+    renderPagedTable();
+  });
+}
+
 function setupSheets(payload) {
   const select = document.getElementById("sheetSelect");
   const sheets = payload.sheets || [];
   const fallbackRows = payload.projects || [];
+  const searchInput = document.getElementById("searchInput");
 
   const normalizedSheets = sheets.length
     ? sheets
@@ -128,7 +188,10 @@ function setupSheets(payload) {
     const rows = selected.rows || [];
     renderKpis(rows);
     renderBars(rows);
-    renderTable(rows);
+    tableState.allRows = rows;
+    tableState.currentPage = 1;
+    tableState.filteredRows = filterRows(rows, searchInput.value);
+    renderPagedTable();
   };
 
   select.addEventListener("change", () => renderSheet(Number(select.value)));
@@ -143,6 +206,7 @@ function setupSheets(payload) {
       ? generatedAt.toLocaleString()
       : "Unknown";
     document.getElementById("lastUpdated").textContent = `Last updated: ${lastUpdated}`;
+    setupTableControls();
     setupSheets(payload);
   } catch (error) {
     document.body.insertAdjacentHTML(

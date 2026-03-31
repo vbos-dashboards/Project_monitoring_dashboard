@@ -44,8 +44,24 @@
 
     <section class="panel">
       <h2>Projects Data</h2>
+      <div class="table-tools">
+        <input id="searchInput" type="search" placeholder="Search across all columns..." />
+        <label for="pageSizeSelect">Rows per page</label>
+        <select id="pageSizeSelect">
+          <option value="10">10</option>
+          <option value="25" selected>25</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+        <span id="tableSummary"></span>
+      </div>
       <div class="table-wrap">
         <table id="projectsTable"></table>
+      </div>
+      <div class="pager">
+        <button id="prevPage" type="button">Previous</button>
+        <span id="pageIndicator">Page 1</span>
+        <button id="nextPage" type="button">Next</button>
       </div>
     </section>
   </main>
