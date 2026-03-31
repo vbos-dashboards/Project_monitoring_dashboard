@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projects Data | Project Monitoring</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="cover">
+    <img src="./assets/logo.png" alt="Project Monitoring Dashboard Logo" class="logo" />
+    <div>
+      <h1>Projects Data Page</h1>
+      <p>Browse the full dataset with search and pagination.</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="panel nav-panel">
+      <div class="page-links">
+        <a class="page-link" href="./index.html">Home</a>
+        <a class="page-link" href="./dashboard.html">Dashboard</a>
+        <a class="page-link active" href="./projects.html">Projects Data</a>
+      </div>
+    </nav>
+
+    <section class="panel controls">
+      <label for="sheetSelect">Worksheet</label>
+      <select id="sheetSelect"></select>
+      <span id="lastUpdated"></span>
+    </section>
+
+    <section class="panel">
+      <h2>Projects Data</h2>
+      <div class="table-tools">
+        <input id="searchInput" type="search" placeholder="Search across all columns..." />
+        <label for="pageSizeSelect">Rows per page</label>
+        <select id="pageSizeSelect">
+          <option value="10">10</option>
+          <option value="25" selected>25</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+        <span id="tableSummary"></span>
+      </div>
+      <div class="table-wrap">
+        <table id="projectsTable"></table>
+      </div>
+      <div class="pager">
+        <button id="prevPage" type="button">Previous</button>
+        <span id="pageIndicator">Page 1</span>
+        <button id="nextPage" type="button">Next</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>

@@ -11,61 +11,27 @@
     <img src="./assets/logo.png" alt="Project Monitoring Dashboard Logo" class="logo" />
     <div>
       <h1>Project Monitoring Dashboard</h1>
-      <p>Track project status, timelines, and completion progress.</p>
+      <p>Use the pages below to monitor project progress and review full project records.</p>
     </div>
   </header>
 
   <main class="container">
-    <section class="panel controls">
-      <label for="sheetSelect">Worksheet</label>
-      <select id="sheetSelect"></select>
-      <span id="lastUpdated"></span>
-    </section>
-
-    <section class="kpi-grid">
-      <article class="kpi-card">
-        <h2>Total Records</h2>
-        <p id="totalProjects">0</p>
-      </article>
-      <article class="kpi-card">
-        <h2>Average Progress</h2>
-        <p id="avgProgress">0%</p>
-      </article>
-      <article class="kpi-card">
-        <h2>Completed</h2>
-        <p id="completedCount">0</p>
-      </article>
+    <section class="panel nav-panel">
+      <h2>Pages</h2>
+      <div class="page-links">
+        <a class="page-link" href="./dashboard.html">Dashboard Page</a>
+        <a class="page-link" href="./projects.html">Projects Data Page</a>
+      </div>
     </section>
 
     <section class="panel">
-      <h2>Progress by Project</h2>
-      <div id="progressChart" class="bars"></div>
-    </section>
-
-    <section class="panel">
-      <h2>Projects Data</h2>
-      <div class="table-tools">
-        <input id="searchInput" type="search" placeholder="Search across all columns..." />
-        <label for="pageSizeSelect">Rows per page</label>
-        <select id="pageSizeSelect">
-          <option value="10">10</option>
-          <option value="25" selected>25</option>
-          <option value="50">50</option>
-          <option value="100">100</option>
-        </select>
-        <span id="tableSummary"></span>
-      </div>
-      <div class="table-wrap">
-        <table id="projectsTable"></table>
-      </div>
-      <div class="pager">
-        <button id="prevPage" type="button">Previous</button>
-        <span id="pageIndicator">Page 1</span>
-        <button id="nextPage" type="button">Next</button>
-      </div>
+      <h2>What you get</h2>
+      <ul>
+        <li>A dedicated dashboard page with progress KPIs and chart.</li>
+        <li>A dedicated projects page with search and pagination.</li>
+        <li>Data refreshed from <code>Projects.xlsx</code> through GitHub Actions.</li>
+      </ul>
     </section>
   </main>
-
-  <script src="./app.js"></script>
 </body>
 </html>

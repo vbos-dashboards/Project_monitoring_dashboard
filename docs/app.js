@@ -68,18 +68,24 @@ function toProjectName(record, index) {
 }
 
 function renderKpis(records) {
+  const totalEl = document.getElementById("totalProjects");
+  const avgEl = document.getElementById("avgProgress");
+  const completedEl = document.getElementById("completedCount");
+  if (!totalEl || !avgEl || !completedEl) return;
+
   const total = records.length;
   const progressValues = records.map(toProgress);
   const avg = total ? progressValues.reduce((a, b) => a + b, 0) / total : 0;
   const completed = progressValues.filter(v => v >= 100).length;
 
-  document.getElementById("totalProjects").textContent = total;
-  document.getElementById("avgProgress").textContent = `${avg.toFixed(1)}%`;
-  document.getElementById("completedCount").textContent = completed;
+  totalEl.textContent = total;
+  avgEl.textContent = `${avg.toFixed(1)}%`;
+  completedEl.textContent = completed;
 }
 
 function renderBars(records) {
   const chart = document.getElementById("progressChart");
+  if (!chart) return;
   chart.innerHTML = "";
 
   records.forEach((record, index) => {
@@ -99,6 +105,7 @@ function renderBars(records) {
 
 function renderTable(projects) {
   const table = document.getElementById("projectsTable");
+  if (!table) return;
   table.innerHTML = "";
   if (!projects.length) return;
 
@@ -126,6 +133,7 @@ function filterRows(rows, query) {
 }
 
 function renderPagedTable() {
+  if (!document.getElementById("projectsTable")) return;
   const total = tableState.filteredRows.length;
   const totalPages = Math.max(1, Math.ceil(total / tableState.pageSize));
   tableState.currentPage = Math.min(tableState.currentPage, totalPages);
@@ -136,15 +144,22 @@ function renderPagedTable() {
 
   const from = total === 0 ? 0 : startIndex + 1;
   const to = Math.min(startIndex + tableState.pageSize, total);
-  document.getElementById("tableSummary").textContent = `${from}-${to} of ${total} rows`;
-  document.getElementById("pageIndicator").textContent = `Page ${tableState.currentPage} of ${totalPages}`;
-  document.getElementById("prevPage").disabled = tableState.currentPage <= 1;
-  document.getElementById("nextPage").disabled = tableState.currentPage >= totalPages;
+  const tableSummary = document.getElementById("tableSummary");
+  const pageIndicator = document.getElementById("pageIndicator");
+  const prevBtn = document.getElementById("prevPage");
+  const nextBtn = document.getElementById("nextPage");
+  if (tableSummary) tableSummary.textContent = `${from}-${to} of ${total} rows`;
+  if (pageIndicator) pageIndicator.textContent = `Page ${tableState.currentPage} of ${totalPages}`;
+  if (prevBtn) prevBtn.disabled = tableState.currentPage <= 1;
+  if (nextBtn) nextBtn.disabled = tableState.currentPage >= totalPages;
 }
 
 function setupTableControls() {
   const searchInput = document.getElementById("searchInput");
   const pageSizeSelect = document.getElementById("pageSizeSelect");
+  const prevBtn = document.getElementById("prevPage");
+  const nextBtn = document.getElementById("nextPage");
+  if (!searchInput || !pageSizeSelect || !prevBtn || !nextBtn) return;
 
   searchInput.addEventListener("input", () => {
     tableState.currentPage = 1;
@@ -158,12 +173,12 @@ function setupTableControls() {
     renderPagedTable();
   });
 
-  document.getElementById("prevPage").addEventListener("click", () => {
+  prevBtn.addEventListener("click", () => {
     tableState.currentPage = Math.max(1, tableState.currentPage - 1);
     renderPagedTable();
   });
 
-  document.getElementById("nextPage").addEventListener("click", () => {
+  nextBtn.addEventListener("click", () => {
     tableState.currentPage += 1;
     renderPagedTable();
   });
@@ -171,6 +186,7 @@ function setupTableControls() {
 
 function setupSheets(payload) {
   const select = document.getElementById("sheetSelect");
+  if (!select) return;
   const sheets = payload.sheets || [];
   const fallbackRows = payload.projects || [];
   const searchInput = document.getElementById("searchInput");
@@ -190,7 +206,7 @@ function setupSheets(payload) {
     renderBars(rows);
     tableState.allRows = rows;
     tableState.currentPage = 1;
-    tableState.filteredRows = filterRows(rows, searchInput.value);
+    tableState.filteredRows = filterRows(rows, searchInput ? searchInput.value : "");
     renderPagedTable();
   };
 
@@ -205,7 +221,8 @@ function setupSheets(payload) {
     const lastUpdated = generatedAt && !Number.isNaN(generatedAt.getTime())
       ? generatedAt.toLocaleString()
       : "Unknown";
-    document.getElementById("lastUpdated").textContent = `Last updated: ${lastUpdated}`;
+    const updatedEl = document.getElementById("lastUpdated");
+    if (updatedEl) updatedEl.textContent = `Last updated: ${lastUpdated}`;
     setupTableControls();
     setupSheets(payload);
   } catch (error) {

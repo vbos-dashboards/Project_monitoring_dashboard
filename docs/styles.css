@@ -48,6 +48,30 @@ body {
   padding: 16px;
 }
 
+.nav-panel {
+  margin-bottom: 16px;
+}
+
+.page-links {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.page-link {
+  text-decoration: none;
+  color: #0b2d4f;
+  border: 1px solid #c8d2e4;
+  border-radius: 8px;
+  padding: 8px 12px;
+  background: #fff;
+}
+
+.page-link.active {
+  background: #0b2d4f;
+  color: #fff;
+}
+
 .controls {
   display: flex;
   align-items: center;
