@@ -48,6 +48,26 @@ body {
   padding: 16px;
 }
 
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.controls select {
+  min-width: 180px;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #c8d2e4;
+}
+
+#lastUpdated {
+  color: #3f536f;
+  font-size: 13px;
+}
+
 .kpi-card h2 {
   margin: 0;
   font-size: 16px;

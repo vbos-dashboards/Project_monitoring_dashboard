@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -33,59 +35,61 @@ public class ExcelToJsonExporter {
             throw new IllegalArgumentException("Excel file not found: " + inputPath.toAbsolutePath());
         }
 
-        List<Map<String, String>> projects = readProjects(inputPath);
-        Map<String, Object> payload = buildPayload(projects);
+        Map<String, Object> payload = readWorkbook(inputPath);
 
         Files.createDirectories(outputPath.getParent());
         ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
         mapper.writeValue(outputPath.toFile(), payload);
 
-        System.out.println("Exported " + projects.size() + " records to " + outputPath.toAbsolutePath());
+        System.out.println("Exported workbook data to " + outputPath.toAbsolutePath());
     }
 
-    private static List<Map<String, String>> readProjects(Path inputPath) throws IOException {
-        List<Map<String, String>> rows = new ArrayList<>();
+    private static Map<String, Object> readWorkbook(Path inputPath) throws IOException {
         DataFormatter formatter = new DataFormatter();
+        List<Map<String, Object>> sheetsPayload = new ArrayList<>();
+        List<Map<String, String>> firstSheetRows = new ArrayList<>();
+        int totalRecords = 0;
 
         try (FileInputStream fis = new FileInputStream(inputPath.toFile());
              Workbook workbook = new XSSFWorkbook(fis)) {
-            Sheet sheet = workbook.getSheetAt(0);
-            if (sheet == null) {
-                return rows;
-            }
-
-            Row headerRow = sheet.getRow(sheet.getFirstRowNum());
-            if (headerRow == null) {
-                return rows;
-            }
-
-            List<String> headers = extractHeaders(headerRow, formatter);
-
-            for (int i = sheet.getFirstRowNum() + 1; i <= sheet.getLastRowNum(); i++) {
-                Row row = sheet.getRow(i);
-                if (row == null) {
+            for (int s = 0; s < workbook.getNumberOfSheets(); s++) {
+                Sheet sheet = workbook.getSheetAt(s);
+                if (sheet == null) {
                     continue;
                 }
 
-                Map<String, String> entry = new LinkedHashMap<>();
-                boolean hasValue = false;
-
-                for (int c = 0; c < headers.size(); c++) {
-                    String header = headers.get(c);
-                    String value = formatter.formatCellValue(row.getCell(c));
-                    if (!value.isBlank()) {
-                        hasValue = true;
-                    }
-                    entry.put(header, value);
+                int headerRowIndex = detectHeaderRowIndex(sheet, formatter);
+                if (headerRowIndex < 0) {
+                    continue;
                 }
 
-                if (hasValue) {
-                    rows.add(entry);
+                Row headerRow = sheet.getRow(headerRowIndex);
+                List<String> headers = extractHeaders(headerRow, formatter);
+                List<Map<String, String>> rows = readRows(sheet, headers, headerRowIndex + 1, formatter);
+                totalRecords += rows.size();
+
+                Map<String, Object> sheetEntry = new LinkedHashMap<>();
+                sheetEntry.put("name", sheet.getSheetName());
+                sheetEntry.put("headerRow", headerRowIndex + 1);
+                sheetEntry.put("headers", headers);
+                sheetEntry.put("totalRows", rows.size());
+                sheetEntry.put("rows", rows);
+                sheetsPayload.add(sheetEntry);
+
+                if (s == 0) {
+                    firstSheetRows = rows;
                 }
             }
         }
 
-        return rows;
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("generatedAt", java.time.Instant.now().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+        payload.put("totalSheets", sheetsPayload.size());
+        payload.put("totalProjects", firstSheetRows.size());
+        payload.put("totalRecords", totalRecords);
+        payload.put("projects", firstSheetRows);
+        payload.put("sheets", sheetsPayload);
+        return payload;
     }
 
     private static List<String> extractHeaders(Row headerRow, DataFormatter formatter) {
@@ -105,11 +109,68 @@ public class ExcelToJsonExporter {
         return headers;
     }
 
-    private static Map<String, Object> buildPayload(List<Map<String, String>> projects) {
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("generatedAt", java.time.Instant.now().toString());
-        payload.put("totalProjects", projects.size());
-        payload.put("projects", projects);
-        return payload;
+    private static int detectHeaderRowIndex(Sheet sheet, DataFormatter formatter) {
+        for (int i = sheet.getFirstRowNum(); i <= sheet.getLastRowNum(); i++) {
+            Row row = sheet.getRow(i);
+            if (row == null) {
+                continue;
+            }
+            int nonEmpty = 0;
+            int stringLike = 0;
+            boolean hasProjectKeyword = false;
+
+            for (int c = row.getFirstCellNum(); c < row.getLastCellNum(); c++) {
+                if (c < 0) {
+                    continue;
+                }
+                Cell cell = row.getCell(c);
+                String value = formatter.formatCellValue(cell).trim();
+                if (value.isEmpty()) {
+                    continue;
+                }
+                nonEmpty++;
+                if (cell != null && cell.getCellType() == CellType.STRING) {
+                    stringLike++;
+                }
+                if (value.toLowerCase().contains("project") || value.toLowerCase().contains("status")) {
+                    hasProjectKeyword = true;
+                }
+            }
+
+            if (nonEmpty >= 6 && stringLike >= 4 && hasProjectKeyword) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private static List<Map<String, String>> readRows(
+        Sheet sheet,
+        List<String> headers,
+        int startRowIndex,
+        DataFormatter formatter
+    ) {
+        List<Map<String, String>> rows = new ArrayList<>();
+        for (int i = startRowIndex; i <= sheet.getLastRowNum(); i++) {
+            Row row = sheet.getRow(i);
+            if (row == null) {
+                continue;
+            }
+
+            Map<String, String> entry = new LinkedHashMap<>();
+            boolean hasValue = false;
+            for (int c = 0; c < headers.size(); c++) {
+                String value = formatter.formatCellValue(row.getCell(c));
+                if (!value.isBlank()) {
+                    hasValue = true;
+                }
+                entry.put(headers.get(c), value);
+            }
+
+            if (hasValue) {
+                rows.add(entry);
+            }
+        }
+        return rows;
     }
 }
