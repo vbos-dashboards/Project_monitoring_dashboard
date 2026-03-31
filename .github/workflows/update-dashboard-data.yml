@@ -1,0 +1,57 @@
+name: Update Dashboard Data
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "Projects.xlsx"
+      - "src/main/java/**"
+      - "pom.xml"
+      - ".github/workflows/update-dashboard-data.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  export-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Export Projects.xlsx to docs/data/projects.json
+        run: |
+          if [ ! -f "Projects.xlsx" ]; then
+            echo "Projects.xlsx not found. Keeping existing docs/data/projects.json."
+            exit 0
+          fi
+          mvn -B -q compile exec:java
+
+      - name: Commit updated dashboard data
+        run: |
+          if [ ! -f "Projects.xlsx" ]; then
+            echo "No Excel file available, skipping commit."
+            exit 0
+          fi
+
+          if git diff --quiet -- docs/data/projects.json; then
+            echo "No data change detected."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data/projects.json
+          git commit -m "Update dashboard data from Projects.xlsx"
+          git push

@@ -51,3 +51,11 @@ Then open `http://localhost:8080/docs/`.
 Published URL will be:
 
 `https://vbos-dashboards.github.io/Project_monitoring_dashboard/`
+
+## Automatic data refresh (GitHub Actions)
+
+This repo includes `.github/workflows/update-dashboard-data.yml`.
+
+- Runs automatically when `Projects.xlsx` (or exporter code) changes on `main`
+- Can also be run manually from the **Actions** tab
+- Regenerates `docs/data/projects.json` and commits updates back to `main`
