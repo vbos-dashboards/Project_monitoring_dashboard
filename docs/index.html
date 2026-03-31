@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Monitoring Dashboard</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="cover">
+    <img src="./assets/logo.png" alt="Project Monitoring Dashboard Logo" class="logo" />
+    <div>
+      <h1>Project Monitoring Dashboard</h1>
+      <p>Track project status, timelines, and completion progress.</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="kpi-grid">
+      <article class="kpi-card">
+        <h2>Total Projects</h2>
+        <p id="totalProjects">0</p>
+      </article>
+      <article class="kpi-card">
+        <h2>Average Progress</h2>
+        <p id="avgProgress">0%</p>
+      </article>
+      <article class="kpi-card">
+        <h2>Completed</h2>
+        <p id="completedCount">0</p>
+      </article>
+    </section>
+
+    <section class="panel">
+      <h2>Progress by Project</h2>
+      <div id="progressChart" class="bars"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Projects Data</h2>
+      <div class="table-wrap">
+        <table id="projectsTable"></table>
+      </div>
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+{
+  "generatedAt": "2026-03-31T00:00:00Z",
+  "totalProjects": 4,
+  "projects": [
+    {
+      "Project Name": "Road Upgrade Phase 1",
+      "Owner": "Infrastructure",
+      "Status": "In Progress",
+      "Progress": "72",
+      "Start Date": "2026-01-15",
+      "End Date": "2026-06-30"
+    },
+    {
+      "Project Name": "School Renovation",
+      "Owner": "Education",
+      "Status": "Completed",
+      "Progress": "100",
+      "Start Date": "2025-10-01",
+      "End Date": "2026-02-15"
+    },
+    {
+      "Project Name": "Clinic Solar Installation",
+      "Owner": "Health",
+      "Status": "In Progress",
+      "Progress": "48",
+      "Start Date": "2026-02-01",
+      "End Date": "2026-08-15"
+    },
+    {
+      "Project Name": "Water Supply Extension",
+      "Owner": "Utilities",
+      "Status": "Planning",
+      "Progress": "20",
+      "Start Date": "2026-03-10",
+      "End Date": "2026-12-20"
+    }
+  ]
+}
